@@ -4,32 +4,37 @@ import java.util.List;
 
 public class ShoppingCart {
     private final List<ProductCard> cartItems = new ArrayList<>();
-    public void addItemToCart(InventoryManager inventoryManager,Product product, int quantity) {
-        ProductCard newProductCard = new ProductCard(product, quantity);
+    public void addItemToCart(ProductCard productCardFromInventory, int quantity) {
+        ProductCard newProductCard = new ProductCard(productCardFromInventory.getProduct(), quantity);
         for (ProductCard productCard : cartItems) {
-            if (productCard.getProduct().getId() == product.getId()) {
+            if (productCard.getProduct().getId() == productCardFromInventory.getProduct().getId()) {
                 System.out.println("Item already exists in the cart.");
                 return;
             }
         }
-        // check if quantity is available in inventory
-        ProductCard productCard = inventoryManager.getProductCardById(product.getId());
-        if (productCard == null) {
-            System.out.println("Product not found in inventory.");
+        if(productCardFromInventory.getQuantity() == 0){
+            System.out.println("Product is out of stock.");
             return;
         }
-        if (productCard.getQuantity() < quantity) {
+        if (productCardFromInventory.getQuantity() < quantity) {
             System.out.println("Quantity not available in inventory.");
             return;
         }
-
-
         cartItems.add(newProductCard);
-        System.out.println(product.name + " added to the cart.");
+        productCardFromInventory.setQuantity(productCardFromInventory.getQuantity() - quantity);
+        System.out.println(productCardFromInventory.getProduct().getName() + " added to the cart.");
     }
-    public void updateItemQuantity(Product product, int quantity) {
+    public void updateItemQuantity(ProductCard productCardFromInventory, int quantity) {
         for (ProductCard productCard : cartItems) {
-            if (productCard.getProduct().getId() == product.getId()) {
+            if (productCard.getProduct().getId() == productCardFromInventory.getProduct().getId()) {
+                if(productCardFromInventory.getQuantity() == 0){
+                    System.out.println("Product is out of stock.");
+                    return;
+                }
+                if (productCardFromInventory.getQuantity() < quantity) {
+                    System.out.println("Quantity not available in inventory.");
+                    return;
+                }
                 productCard.setQuantity(quantity);
                 System.out.println("Item quantity updated.");
                 return;
@@ -58,7 +63,7 @@ public class ShoppingCart {
             }
         }
     }
-    public void checkout(User currentUser) {
+    public void checkout(User currentUser, InventoryManager inventoryManager) {
         if (cartItems.isEmpty()) {
             System.out.println("Cart is empty.");
         } else {
@@ -70,8 +75,23 @@ public class ShoppingCart {
                 total += productCard.getProduct().getPrice() * productCard.getQuantity();
             }
             System.out.println("Total: $" + total);
+            double discount = 0;
+            System.out.println("Do you have a coupon? (Y/N)");
+            String choice = Main.scanner.nextLine();
+            if (choice.equalsIgnoreCase("Y")) {
+                System.out.print("Enter coupon code: ");
+                String couponCodeText = Main.scanner.nextLine();
+                Coupon coupon = inventoryManager.getCouponManager().getCouponByCode(couponCodeText);
+                if(coupon != null){
+                    discount = coupon.getDiscount();
+                    total = total - (total * discount / 100);
+                    System.out.println("Coupon applied successfully.");
+                }
+                else return;
+            }
             System.out.println("Thank you for shopping with us.");
-            Order order = new Order(currentUser, cartItems, total, LocalDate.now(),"Pending");
+            System.out.println("Go back to main menu to pay for your order!");
+            Order order = new Order(currentUser.getLogin(), cartItems, total, discount, LocalDate.now(),"Pending");
             cartItems.clear();
             currentUser.addOrder(order);
         }
@@ -79,16 +99,17 @@ public class ShoppingCart {
     public void shoppingMenu(InventoryManager inventoryManager) {
         while (true) {
             System.out.println("1. Show all products");
-            System.out.println("2. Add item to cart");
-            System.out.println("3. Update item quantity");
-            System.out.println("4. Remove item from cart");
-            System.out.println("5. Display cart items");
+            System.out.println("2. Rate a product");
+            System.out.println("3. Add item to cart");
+            System.out.println("4. Update item quantity");
+            System.out.println("5. Remove item from cart");
             System.out.println("6. Display cart items");
-            System.out.println("7. Back to main menu");
+            System.out.println("7. Checkout");
+            System.out.println("8. Back to main menu");
             System.out.print("Enter your choice: ");
             int choice = Main.scanner.nextInt();
             Main.scanner.nextLine();
-            Product product;
+            ProductCard productCardFromInventory;
             int id;
             switch (choice) {
                 case 1:
@@ -96,55 +117,79 @@ public class ShoppingCart {
                     inventoryManager.displayInventory();
                     break;
                 case 2:
-                    System.out.println("Add item to cart");
+                    System.out.println("Rate a product");
                     System.out.print("Enter product id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
-                    product = inventoryManager.getProductCardById(id).getProduct();
-                    if (product != null) {
-                        System.out.print("Enter quantity: ");
-                        int quantity = Main.scanner.nextInt();
-                        Main.scanner.nextLine();
-                        addItemToCart(inventoryManager, product, quantity);
+                    productCardFromInventory = inventoryManager.getProductCardById(id);
+                    if (productCardFromInventory != null && inventoryManager.getCurrentUser().havePaidProduct(productCardFromInventory) && !inventoryManager.getCurrentUser().haveRatedProduct(productCardFromInventory)) {
+                        int rating;
+                        do {
+                            System.out.print("Enter rating: ");
+                            rating = Main.scanner.nextInt();
+                            Main.scanner.nextLine();
+                            if (rating < 1 || rating > 5) {
+                                System.out.println("Invalid rating (should be between 1 and 5)");
+                            }
+                        } while (rating < 1 || rating > 5);
+                        System.out.print("Enter comment: ");
+                        String comment = Main.scanner.nextLine();
+                        productCardFromInventory.addReview(new Review(rating,comment,inventoryManager.getCurrentUser()));
+                        System.out.println("Product rated successfully.");
                     } else {
                         System.out.println("Product not found.");
                     }
                     break;
                 case 3:
-                    System.out.println("Update item quantity");
+                    System.out.println("Add item to cart");
                     System.out.print("Enter product id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
-                    product = inventoryManager.getProductCardById(id).getProduct();
-                    if (product != null) {
+                    productCardFromInventory = inventoryManager.getProductCardById(id);
+                    if (productCardFromInventory != null) {
                         System.out.print("Enter quantity: ");
                         int quantity = Main.scanner.nextInt();
                         Main.scanner.nextLine();
-                        updateItemQuantity(product, quantity);
+                        addItemToCart(productCardFromInventory, quantity);
                     } else {
                         System.out.println("Product not found.");
                     }
                     break;
                 case 4:
-                    System.out.println("Remove item from cart");
+                    System.out.println("Update item quantity");
                     System.out.print("Enter product id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
-                    product = inventoryManager.getProductCardById(id).getProduct();
-                    if (product != null) {
-                        removeItemFromCart(product);
+                    productCardFromInventory = inventoryManager.getProductCardById(id);
+                    if (productCardFromInventory != null) {
+                        System.out.print("Enter quantity: ");
+                        int quantity = Main.scanner.nextInt();
+                        Main.scanner.nextLine();
+                        updateItemQuantity(productCardFromInventory, quantity);
                     } else {
                         System.out.println("Product not found.");
                     }
                     break;
                 case 5:
+                    System.out.println("Remove item from cart");
+                    System.out.print("Enter product id: ");
+                    id = Main.scanner.nextInt();
+                    Main.scanner.nextLine();
+                    productCardFromInventory = inventoryManager.getProductCardById(id);
+                    if (productCardFromInventory != null) {
+                        removeItemFromCart(productCardFromInventory.getProduct());
+                    } else {
+                        System.out.println("Product not found.");
+                    }
+                    break;
+                case 6:
                     System.out.println("Display cart items");
                     displayCartItems();
                     break;
-                case 6:
-                    checkout(inventoryManager.getCurrentUser());
-                    break;
                 case 7:
+                    checkout(inventoryManager.getCurrentUser(), inventoryManager);
+                    break;
+                case 8:
                     System.out.println("Exiting shopping menu...");
                     return;
                 default:

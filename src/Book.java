@@ -10,7 +10,7 @@ public class Book extends Product {
 
     @Override
     public void displayInfo() {
-        System.out.println("Book: " + name + " by " + author + ". Genre: " + genre + ". Price: $" + price + ". Description: " + description);
+        System.out.println("\tBook: " + name + " by " + author + ". Genre: " + genre + ". Price: $" + price + ". Description: " + description);
     }
 
     @Override

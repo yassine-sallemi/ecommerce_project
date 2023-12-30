@@ -10,7 +10,7 @@ public class Clothing extends Product {
 
     @Override
     public void displayInfo() {
-        System.out.println("Clothing: " + name + ". Size: " + size + ". Material: " + material + ". Price: $" + price + ". Description: " + description);
+        System.out.println("\tClothing: " + name + ". Size: " + size + ". Material: " + material + ". Price: $" + price + ". Description: " + description);
     }
 
     public void update() {

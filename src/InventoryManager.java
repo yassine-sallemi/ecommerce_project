@@ -4,6 +4,7 @@ public class InventoryManager {
     private final ArrayList<ProductCard> inventory = new ArrayList<>();
     private final ProductManager productManager = new ProductManager();
     private final ShoppingCart shoppingCart = new ShoppingCart();
+    private final CouponManager couponManager = new CouponManager();
     private User currentUser;
     public InventoryManager(User currentUser) {
         this.currentUser = currentUser;
@@ -11,10 +12,15 @@ public class InventoryManager {
     public User getCurrentUser() {
         return currentUser;
     }
+    public CouponManager getCouponManager() {
+        return couponManager;
+    }
     public void setCurrentUser(User anotherUser) {
         this.currentUser = anotherUser;
     }
-
+    public ArrayList<ProductCard> getInventory() {
+        return inventory;
+    }
     public ProductCard getProductCardById(int id) {
         for (ProductCard productCard : inventory) {
             if (productCard.getProduct().getId() == id) {
@@ -71,8 +77,7 @@ public class InventoryManager {
         } else {
             System.out.println("Products in inventory:");
             for (ProductCard productCard : inventory) {
-                productCard.getProduct().displayInfo();
-                System.out.println("Quantity: " + productCard.getQuantity());
+                productCard.displayInfo();
             }
         }
     }
@@ -92,14 +97,6 @@ public class InventoryManager {
             }
         }
         System.out.println("Product not found.");
-    }
-    public void updateProductQuantityAfterPurchase(Product product, int quantity) {
-        for (ProductCard productCard : inventory) {
-            if (productCard.getProduct().getId() == product.getId()) {
-                productCard.setQuantity(productCard.getQuantity() - quantity);
-                return;
-            }
-        }
     }
     public void searchProductMenu(){
         System.out.println("1. Search by id");
@@ -175,7 +172,6 @@ public class InventoryManager {
         }
         System.out.println("Product not found.");
     }
-    //inventory menu
     public void inventoryMenu() {
         if(currentUser.getIsAdmin()){
             while (true) {
@@ -186,7 +182,10 @@ public class InventoryManager {
                 System.out.println("5. Display inventory");
                 System.out.println("6. Modify quantity product");
                 System.out.println("7. Search product");
-                System.out.println("8. Back to main menu");
+                System.out.println("8. Add coupon");
+                System.out.println("9. Deactivate coupon");
+                System.out.println("10. Display coupons");
+                System.out.println("11. Back to main menu");
                 System.out.print("Enter your choice: ");
                 int choice = Main.scanner.nextInt();
                 Main.scanner.nextLine();
@@ -213,6 +212,15 @@ public class InventoryManager {
                         searchProductMenu();
                         break;
                     case 8:
+                        couponManager.createCoupon(currentUser);
+                        return;
+                    case 9:
+                        couponManager.deactivateCoupon(currentUser);
+                        return;
+                    case 10:
+                        couponManager.displayCoupons();
+                        return;
+                    case 11:
                         System.out.println("Back to main menu...");
                         return;
                     default:

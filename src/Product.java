@@ -26,10 +26,6 @@ public abstract class Product {
         return price;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public void setName(String name) {
         if(!name.isEmpty()){
             this.name = name;

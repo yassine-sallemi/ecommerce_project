@@ -11,7 +11,7 @@ public class Food extends Product {
 
     @Override
     public void displayInfo() {
-        System.out.println("Food: " + name + ". Expires: " + expirationDate + ". Price: $" + price + ". Description: " + description);
+        System.out.println("\tFood: " + name + ". Expires: " + expirationDate + ". Price: $" + price + ". Description: " + description);
     }
 
     @Override

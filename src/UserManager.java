@@ -2,26 +2,24 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class UserManager {
-//    private ArrayList<User> users = User.populate();
-    private ArrayList<User> users = new ArrayList<>();
-
-    public void addUser(User user) {
-        users.add(user);
+    private final ArrayList<User> users = new ArrayList<>();
+    UserManager(){
+        User admin = new User("admin", "admin", "admin",true);
+        users.add(admin);
     }
-
-    User createAccount(String login, String password, String name, boolean isAdmin){
+    private void createAccount(String login, String password, String name, boolean isAdmin){
 
         // Check if the new login is unique
         for (User admin : users){
             if(Objects.equals(admin.getLogin(), login)){
                 System.out.println("This username is already used, try another one.");
-                return null;
+                return;
             }
         }
         // Check if password is at least 4 characters
         if(password.length() < 4){
             System.out.println("Password should be at least 4 characters.");
-            return null;
+            return;
         }
         // Create new User based on its role
         User newUser = new User(login,password,name, isAdmin);
@@ -34,9 +32,8 @@ public class UserManager {
             System.out.println("New customer has been added: " + name);
         }
         users.add(newUser);
-        return newUser;
     }
-    User loginAccount(String login, String password){
+    private User loginAccount(String login, String password){
         // Search for the user in the database based on its login
         User user = null;
         for (User user1 : users){
@@ -59,12 +56,12 @@ public class UserManager {
         System.out.println("Logged in successfully.");
         return user;
     }
-    User addAdmin(User currentUser, String login, String password, String name){
+    private void addAdmin(User currentUser, String login, String password, String name){
         if(!currentUser.getIsAdmin()){
             System.out.println("You don't have the permission to add an administrator.");
-            return null;
+            return;
         }
-        return createAccount(login,password,name,true);
+        createAccount(login,password,name,true);
     }
 
 
@@ -121,8 +118,8 @@ public class UserManager {
                     password = Main.scanner.nextLine();
                     System.out.print("Enter name: ");
                     String name = Main.scanner.nextLine();
-                    user = createAccount(login, password, name, false);
-                    // TODO
+                    createAccount(login, password, name, false);
+                    System.out.println("Please login to start shopping.");
                     break;
                 case 2:
                     System.out.print("Enter username: ");
@@ -150,7 +147,7 @@ public class UserManager {
     }
 
     // user menu
-    public void adminMenu(User currentUser, InventoryManager inventoryManager){
+    private void adminMenu(User currentUser, InventoryManager inventoryManager){
         while (true) {
             System.out.println("1. User management");
             System.out.println("2. Inventory management");
@@ -174,14 +171,15 @@ public class UserManager {
         }
     }
 
-    void userManagementMenu(User currentUser){
+    private void userManagementMenu(User currentUser){
         if(currentUser.getIsAdmin()){
             while (true) {
                 System.out.println("1. Add administrator");
                 System.out.println("2. Display administrators");
                 System.out.println("3. Display customers");
-                System.out.println("4. Delete user");
-                System.out.println("5. Back to main menu");
+                System.out.println("4. Display all orders");
+                System.out.println("5. Delete user");
+                System.out.println("6. Back to main menu");
                 System.out.print("Enter your choice: ");
                 int choice = Main.scanner.nextInt();
                 Main.scanner.nextLine();
@@ -202,9 +200,16 @@ public class UserManager {
                         displayCustomers();
                         break;
                     case 4:
-                        deleteUser(currentUser);
+                        for(User user : users){
+                            if(!user.getIsAdmin()){
+                                user.displayOrders();
+                            }
+                        }
                         break;
                     case 5:
+                        deleteUser(currentUser);
+                        break;
+                    case 6:
                         System.out.println("Back to main menu...");
                         return;
                     default:
@@ -216,19 +221,52 @@ public class UserManager {
             System.out.println("You don't have the permission to access this menu.");
         }
     }
-    public void customerMenu(InventoryManager inventoryManager){
+    private void customerMenu(InventoryManager inventoryManager){
         while (true) {
             System.out.println("1. Shopping Menu");
-            System.out.println("2. Logout");
+            System.out.println("2. View Orders");
+            System.out.println("3. Pay an order");
+            System.out.println("4. Cancel an order");
+            System.out.println("5. Logout");
             System.out.print("Enter your choice: ");
             int choice = Main.scanner.nextInt();
             Main.scanner.nextLine();
             ShoppingCart shoppingCart = new ShoppingCart();
+            int id;
             switch (choice) {
                 case 1:
                     shoppingCart.shoppingMenu(inventoryManager);
                     break;
                 case 2:
+                    inventoryManager.getCurrentUser().displayOrders();
+                    break;
+                case 3:
+                    System.out.println("Enter order id: ");
+                    id = Main.scanner.nextInt();
+                    Main.scanner.nextLine();
+                    System.out.println("1. Cash");
+                    System.out.println("2. Credit card");
+                    System.out.print("Enter your choice: ");
+                    int choice1 = Main.scanner.nextInt();
+                    Main.scanner.nextLine();
+                    switch (choice1) {
+                        case 1:
+                            inventoryManager.getCurrentUser().payOrder(id, new CashPaymentStrategy());
+                            break;
+                        case 2:
+                            inventoryManager.getCurrentUser().payOrder(id, new CreditCardPaymentStrategy());
+                            break;
+                        default:
+                            System.out.println("Invalid choice.");
+                    }
+                    break;
+                case 4:
+                    System.out.println("Enter order id: ");
+                    id = Main.scanner.nextInt();
+                    Main.scanner.nextLine();
+                    inventoryManager.getCurrentUser().cancelOrder(id, inventoryManager);
+                    break;
+                case 5:
                     System.out.println("Logging out...");
                     return;
                 default:

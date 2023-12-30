@@ -8,7 +8,7 @@ public class Electronic extends Product {
 
     @Override
     public void displayInfo() {
-        System.out.println("Electronic: " + name + " by " + brand + ". Price: $" + price + ". Description: " + description);
+        System.out.println("\tElectronic: " + name + " by " + brand + ". Price: $" + price + ". Description: " + description);
     }
 
     @Override
