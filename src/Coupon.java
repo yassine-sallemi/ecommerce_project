@@ -4,6 +4,8 @@ public class Coupon {
     private String codeText;
     private double discount;
     private Boolean active;
+    
+    // The admin field is a User object that represents the admin who created the coupon
     private User admin;
     public Coupon(double discount, String codeText, Boolean active, User admin) {
         this.id = nextId++;

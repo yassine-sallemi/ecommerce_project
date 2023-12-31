@@ -63,7 +63,6 @@ public class Order {
     public void setCancelledAt(LocalDate cancelledAt) {
         this.cancelledAt = cancelledAt;
     }
-
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
     }

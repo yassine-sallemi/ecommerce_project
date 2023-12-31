@@ -1,14 +1,15 @@
 import java.util.ArrayList;
 
 public class InventoryManager {
+    // The inventory is an array list of product cards
+    // Each product card contains a product and its quantity
     private final ArrayList<ProductCard> inventory = new ArrayList<>();
+    // The product manager is used to create, update products independently of the inventory
     private final ProductManager productManager = new ProductManager();
     private final ShoppingCart shoppingCart = new ShoppingCart();
+    // The coupon manager is used to create, deactivate and display coupons
     private final CouponManager couponManager = new CouponManager();
     private User currentUser;
-    public InventoryManager(User currentUser) {
-        this.currentUser = currentUser;
-    }
     public User getCurrentUser() {
         return currentUser;
     }
@@ -29,19 +30,23 @@ public class InventoryManager {
         }
         return null;
     }
-    public void addProduct() {
-        Product product = productManager.createProduct();
-        ProductCard productCard = new ProductCard(product, 0);
-        inventory.add(productCard);
-    }
-    int readProductId(){
+    private int readProductId(){
+        // Read the product id from the user
         System.out.println("Enter product id: ");
         int id = Main.scanner.nextInt();
         Main.scanner.nextLine();
         return id;
     }
+    public void addProduct() {
+        // Create a new product and add it to the inventory
+        Product product = productManager.createProduct();
+        ProductCard productCard = new ProductCard(product, 0);
+        inventory.add(productCard);
+    }
     public void displayProduct() {
+        // Read the product id from the user
         int id = readProductId();
+        // Display the product information
         for (ProductCard productCard : inventory) {
             if (productCard.getProduct().getId() == id) {
                 productCard.getProduct().displayInfo();
@@ -51,8 +56,11 @@ public class InventoryManager {
         System.out.println("Product not found.");
     }
     public void updateProduct() {
+        // Read the product id from the user
         int id = readProductId();
+        // Update the product information
         for (ProductCard productCard : inventory) {
+            // If the product id matches, update the product
             if (productCard.getProduct().getId() == id) {
                 productManager.updateProduct(productCard.getProduct());
                 return;
@@ -61,8 +69,10 @@ public class InventoryManager {
         System.out.println("Product not found.");
     }
     public void deleteProduct() {
+        // Read the product id from the user
         int id = readProductId();
         for (ProductCard productCard : inventory) {
+            // If the product id matches, delete the product from the inventory
             if (productCard.getProduct().getId() == id) {
                 inventory.remove(productCard);
                 System.out.println("Product deleted.");
@@ -82,11 +92,10 @@ public class InventoryManager {
         }
     }
     public void modifyQuantityProduct() {
-        System.out.println("Enter product id: ");
-        int id = Main.scanner.nextInt();
-        Main.scanner.nextLine();
-
+        // Read the product id from the user
+        int id = readProductId();
         for (ProductCard productCard : inventory) {
+            // If the product id matches, update the quantity
             if (productCard.getProduct().getId() == id) {
                 System.out.println("Enter quantity (Old quantity: " + productCard.getQuantity() + "): ");
                 int quantity = Main.scanner.nextInt();
@@ -173,6 +182,7 @@ public class InventoryManager {
         System.out.println("Product not found.");
     }
     public void inventoryMenu() {
+        // If the current user is an admin, display the inventory menu
         if(currentUser.getIsAdmin()){
             while (true) {
                 System.out.println("1. Add product");
@@ -228,7 +238,9 @@ public class InventoryManager {
                         break;
                 }
             }
-        } else{
+        }
+        // If the current user is a customer, display the shopping cart menu
+        else{
             shoppingCart.shoppingMenu(this);
         }
     }

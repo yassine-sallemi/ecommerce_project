@@ -2,7 +2,6 @@ public class Review {
     private int rating;
     private String comment;
     private User user;
-
     public Review(int rating, String comment,  User user) {
         this.comment = comment;
         this.rating = rating;

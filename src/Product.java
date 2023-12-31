@@ -13,25 +13,20 @@ public abstract class Product {
     }
 
     public abstract void displayInfo();
-
     public int getId() {
         return id;
     }
-
     public String getName() {
         return name;
     }
-
     public double getPrice() {
         return price;
     }
-
     public void setName(String name) {
         if(!name.isEmpty()){
             this.name = name;
         }
     }
-
     public void setPrice(double price) {
         if (price > 0) {
             this.price = price;
@@ -42,7 +37,6 @@ public abstract class Product {
             this.description = description;
         }
     }
-
     public void update(){
         System.out.print("Enter new name: ");
         setName(Main.scanner.nextLine());

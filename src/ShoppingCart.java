@@ -3,10 +3,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShoppingCart {
+    // The shopping cart items are stored in a list of ProductCard to keep track of the quantity of each item.
     private final List<ProductCard> cartItems = new ArrayList<>();
     public void addItemToCart(ProductCard productCardFromInventory, int quantity) {
+        // Create a new ProductCard object to store in the cart.
         ProductCard newProductCard = new ProductCard(productCardFromInventory.getProduct(), quantity);
         for (ProductCard productCard : cartItems) {
+            // Check if the item already exists in the cart.
             if (productCard.getProduct().getId() == productCardFromInventory.getProduct().getId()) {
                 System.out.println("Item already exists in the cart.");
                 return;
@@ -20,7 +23,9 @@ public class ShoppingCart {
             System.out.println("Quantity not available in inventory.");
             return;
         }
+        // Add the new ProductCard object to the cart.
         cartItems.add(newProductCard);
+        // Update the quantity of the item in the inventory.
         productCardFromInventory.setQuantity(productCardFromInventory.getQuantity() - quantity);
         System.out.println(productCardFromInventory.getProduct().getName() + " added to the cart.");
     }
@@ -87,7 +92,9 @@ public class ShoppingCart {
                     total = total - (total * discount / 100);
                     System.out.println("Coupon applied successfully.");
                 }
-                else return;
+                else {
+                    return;
+                }
             }
             System.out.println("Thank you for shopping with us.");
             System.out.println("Go back to main menu to pay for your order!");
@@ -113,15 +120,15 @@ public class ShoppingCart {
             int id;
             switch (choice) {
                 case 1:
-                    System.out.println("All products:");
+                    // Display all products in the inventory.
                     inventoryManager.displayInventory();
                     break;
                 case 2:
-                    System.out.println("Rate a product");
                     System.out.print("Enter product id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
                     productCardFromInventory = inventoryManager.getProductCardById(id);
+                    // Check if the product exists in the inventory and the user has paid for it and not rated it yet.
                     if (productCardFromInventory != null && inventoryManager.getCurrentUser().havePaidProduct(productCardFromInventory) && !inventoryManager.getCurrentUser().haveRatedProduct(productCardFromInventory)) {
                         int rating;
                         do {
@@ -141,7 +148,6 @@ public class ShoppingCart {
                     }
                     break;
                 case 3:
-                    System.out.println("Add item to cart");
                     System.out.print("Enter product id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
@@ -156,7 +162,6 @@ public class ShoppingCart {
                     }
                     break;
                 case 4:
-                    System.out.println("Update item quantity");
                     System.out.print("Enter product id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
@@ -171,7 +176,6 @@ public class ShoppingCart {
                     }
                     break;
                 case 5:
-                    System.out.println("Remove item from cart");
                     System.out.print("Enter product id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
@@ -183,7 +187,6 @@ public class ShoppingCart {
                     }
                     break;
                 case 6:
-                    System.out.println("Display cart items");
                     displayCartItems();
                     break;
                 case 7:

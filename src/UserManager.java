@@ -3,12 +3,14 @@ import java.util.Objects;
 
 public class UserManager {
     private final ArrayList<User> users = new ArrayList<>();
+    private final InventoryManager inventoryManager = new InventoryManager();
+    private User currentUser;
+
     UserManager(){
         User admin = new User("admin", "admin", "admin",true);
         users.add(admin);
     }
     private void createAccount(String login, String password, String name, boolean isAdmin){
-
         // Check if the new login is unique
         for (User admin : users){
             if(Objects.equals(admin.getLogin(), login)){
@@ -16,15 +18,15 @@ public class UserManager {
                 return;
             }
         }
+
         // Check if password is at least 4 characters
         if(password.length() < 4){
             System.out.println("Password should be at least 4 characters.");
             return;
         }
-        // Create new User based on its role
-        User newUser = new User(login,password,name, isAdmin);
-        users.add(newUser);
 
+        // Create new User based on its role and add it to the database
+        User newUser = new User(login,password,name, isAdmin);
         if(isAdmin){
             System.out.println("New administrator has been added: " + name);
         }
@@ -34,7 +36,7 @@ public class UserManager {
         users.add(newUser);
     }
     private User loginAccount(String login, String password){
-        // Search for the user in the database based on its login
+        // Check if the username exists in the database
         User user = null;
         for (User user1 : users){
             if(Objects.equals(user1.getLogin(), login)){
@@ -43,29 +45,36 @@ public class UserManager {
             }
         }
 
+        // If the username doesn't exist, return null
         if(user == null){
             System.out.println("This username doesn't exist.");
             return null;
         }
 
-        // Check the password and return the user otherwise
+        // Check the password for the given user
         if(!Objects.equals(user.getPassword(), password)){
             System.out.println("The given password is wrong");
             return null;
         }
+
+        // If the password is correct, return the user
         System.out.println("Logged in successfully.");
         return user;
     }
     private void addAdmin(User currentUser, String login, String password, String name){
+        // Check if the current user is an admin
         if(!currentUser.getIsAdmin()){
             System.out.println("You don't have the permission to add an administrator.");
             return;
         }
+
+        // Create new admin account and add it to the database
         createAccount(login,password,name,true);
     }
 
 
     private void displayAdmins() {
+        // Display all admins from the database
         System.out.println("Administrators:");
         for (User user : users){
             if(user.getIsAdmin()){
@@ -74,6 +83,7 @@ public class UserManager {
         }
     }
     private void displayCustomers() {
+        // Display all customers from the database
         System.out.println("Customers:");
         for (User user : users){
             if(!user.getIsAdmin()){
@@ -81,20 +91,32 @@ public class UserManager {
             }
         }
     }
-    private void deleteUser(User currentUser) {
+    private void deleteUser() {
+        // Check if the current user is an admin
         if(!currentUser.getIsAdmin()){
             System.out.println("You don't have the permission to delete a user.");
             return;
         }
+
+        // Delete a user from the database
+        // Check if the username exists in the database
         System.out.println("Enter username: ");
         String login = Main.scanner.nextLine();
         for (User user : users){
+            // If the username exists in the database
             if(Objects.equals(user.getLogin(), login)){
+                // Check if the user is trying to delete himself
+                if(user.getLogin().equals(currentUser.getLogin())){
+                    System.out.println("You can't delete yourself.");
+                    return;
+                }
+                // If the user is not trying to delete himself, delete the user
                 users.remove(user);
                 System.out.println("User deleted.");
                 return;
             }
         }
+        // If the username doesn't exist, do nothing
         System.out.println("User not found.");
     }
 
@@ -105,9 +127,7 @@ public class UserManager {
             System.out.println("2. Login");
             System.out.println("3. Exit");
             System.out.print("Enter your choice: ");
-            User user;
             String login, password;
-            InventoryManager inventoryManager = new InventoryManager(null);
             int choice = Main.scanner.nextInt();
             Main.scanner.nextLine();
             switch (choice) {
@@ -126,19 +146,21 @@ public class UserManager {
                     login = Main.scanner.nextLine();
                     System.out.print("Enter password: ");
                     password = Main.scanner.nextLine();
-                    user = loginAccount(login, password);
-                    if(user != null){
-                        inventoryManager.setCurrentUser(user);
-                        if(user.getIsAdmin()){
-                            adminMenu(user, inventoryManager);
+                    currentUser = loginAccount(login, password);
+                    // If the user is not null, it means that the login was successful
+                    if(currentUser != null){
+                        // Set the current user and go to the user menu
+                        inventoryManager.setCurrentUser(currentUser);
+                        if(currentUser.getIsAdmin()){
+                            adminMenu();
                         }
                         else{
-                            customerMenu(inventoryManager);
+                            customerMenu();
                         }
                     }
                     break;
                 case 3:
-                    System.out.println("Exiting account menu...");
+                    System.out.println("Exiting...");
                     return;
                 default:
                     System.out.println("Invalid choice.");
@@ -147,7 +169,7 @@ public class UserManager {
     }
 
     // user menu
-    private void adminMenu(User currentUser, InventoryManager inventoryManager){
+    private void adminMenu(){
         while (true) {
             System.out.println("1. User management");
             System.out.println("2. Inventory management");
@@ -157,13 +179,14 @@ public class UserManager {
             Main.scanner.nextLine();
             switch (choice) {
                 case 1:
-                    userManagementMenu(currentUser);
+                    userManagementMenu();
                     break;
                 case 2:
                     inventoryManager.inventoryMenu();
                     break;
                 case 3:
                     System.out.println("Logging out...");
+                    currentUser = null;
                     return;
                 default:
                     System.out.println("Invalid choice.");
@@ -171,14 +194,14 @@ public class UserManager {
         }
     }
 
-    private void userManagementMenu(User currentUser){
+    private void userManagementMenu(){
         if(currentUser.getIsAdmin()){
             while (true) {
                 System.out.println("1. Add administrator");
                 System.out.println("2. Display administrators");
                 System.out.println("3. Display customers");
                 System.out.println("4. Display all orders");
-                System.out.println("5. Delete user");
+                System.out.println("5. Delete a user");
                 System.out.println("6. Back to main menu");
                 System.out.print("Enter your choice: ");
                 int choice = Main.scanner.nextInt();
@@ -200,6 +223,7 @@ public class UserManager {
                         displayCustomers();
                         break;
                     case 4:
+                        // Display all orders from all customers
                         for(User user : users){
                             if(!user.getIsAdmin()){
                                 user.displayOrders();
@@ -207,7 +231,7 @@ public class UserManager {
                         }
                         break;
                     case 5:
-                        deleteUser(currentUser);
+                        deleteUser();
                         break;
                     case 6:
                         System.out.println("Back to main menu...");
@@ -221,7 +245,7 @@ public class UserManager {
             System.out.println("You don't have the permission to access this menu.");
         }
     }
-    private void customerMenu(InventoryManager inventoryManager){
+    private void customerMenu(){
         while (true) {
             System.out.println("1. Shopping Menu");
             System.out.println("2. View Orders");
@@ -238,12 +262,14 @@ public class UserManager {
                     shoppingCart.shoppingMenu(inventoryManager);
                     break;
                 case 2:
-                    inventoryManager.getCurrentUser().displayOrders();
+                    currentUser.displayOrders();
                     break;
                 case 3:
+                    // Get order by id
                     System.out.println("Enter order id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
+                    // Pay order based on payment method
                     System.out.println("1. Cash");
                     System.out.println("2. Credit card");
                     System.out.print("Enter your choice: ");
@@ -251,10 +277,10 @@ public class UserManager {
                     Main.scanner.nextLine();
                     switch (choice1) {
                         case 1:
-                            inventoryManager.getCurrentUser().payOrder(id, new CashPaymentStrategy());
+                            currentUser.payOrder(id, new CashPaymentStrategy());
                             break;
                         case 2:
-                            inventoryManager.getCurrentUser().payOrder(id, new CreditCardPaymentStrategy());
+                            currentUser.payOrder(id, new CreditCardPaymentStrategy());
                             break;
                         default:
                             System.out.println("Invalid choice.");
@@ -264,7 +290,7 @@ public class UserManager {
                     System.out.println("Enter order id: ");
                     id = Main.scanner.nextInt();
                     Main.scanner.nextLine();
-                    inventoryManager.getCurrentUser().cancelOrder(id, inventoryManager);
+                    currentUser.cancelOrder(id, inventoryManager);
                     break;
                 case 5:
                     System.out.println("Logging out...");

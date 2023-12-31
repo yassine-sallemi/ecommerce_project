@@ -6,34 +6,27 @@ public class User {
     private String name;
     private boolean isAdmin;
     private final ArrayList<Order> orders = new ArrayList<>();
-
     public User(String login, String password, String name, boolean isAdmin) {
         this.login = login;
         this.password = password;
         this.name = name;
         this.isAdmin = isAdmin;
     }
-
     public String getLogin() {
         return login;
     }
-
     public String getPassword() {
         return password;
     }
-
     public boolean getIsAdmin() {
         return isAdmin;
     }
-
     public String getName() {
         return name;
     }
-
     public void addOrder(Order order) {
         orders.add(order);
     }
-
     public void displayOrders() {
         if (orders.isEmpty()) {
             System.out.println("No orders found.");
@@ -44,7 +37,7 @@ public class User {
             }
         }
     }
-    private Order getOrder(int id){
+    private Order getOrderById(int id){
         for (Order order : orders) {
             if (order.getId() == id) {
                 return order;
@@ -52,9 +45,8 @@ public class User {
         }
         return null;
     }
-
     public void payOrder(int id, PaymentStrategy paymentStrategy) {
-        Order order = getOrder(id);
+        Order order = getOrderById(id);
         if (order == null) {
             System.out.println("Order not found.");
             return;
@@ -72,7 +64,7 @@ public class User {
     }
 
     public void cancelOrder(int id, InventoryManager inventoryManager) {
-        Order order = getOrder(id);
+        Order order = getOrderById(id);
         if (order == null) {
             System.out.println("Order not found.");
             return;
@@ -82,7 +74,9 @@ public class User {
             return;
         }
         order.setStatus("Cancelled");
+        // Store the cancelling date
         order.setCancelledAt(java.time.LocalDate.now());
+        // Return the quantity of products to the inventory as if the order was never placed
         for (ProductCard productCard : order.getProductCards()) {
             for (ProductCard productCard1 : inventoryManager.getInventory()) {
                 if (productCard.getProduct().getId() == productCard1.getProduct().getId()) {
@@ -94,6 +88,7 @@ public class User {
     }
 
     Boolean havePaidProduct(ProductCard productCard) {
+        // Check if the user has paid for the product
         for (Order order : orders) {
             if (order.getStatus().equals("Paid")) {
                 for (ProductCard productCard1 : order.getProductCards()) {
@@ -108,6 +103,7 @@ public class User {
     }
 
     Boolean haveRatedProduct(ProductCard productCard) {
+        // Check if the user has rated the product
         for (Order order : orders) {
             if (order.getStatus().equals("Paid")) {
                 for (ProductCard productCard1 : order.getProductCards()) {

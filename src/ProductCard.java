@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class ProductCard {
-    private Product product;
+    private final Product product;
     private int quantity;
     private final ArrayList<Review> reviews = new ArrayList<>();
     public ProductCard(Product product, int quantity) {
