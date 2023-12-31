@@ -33,13 +33,19 @@ public class InventoryManager {
     private int readProductId(){
         // Read the product id from the user
         System.out.println("Enter product id: ");
-        int id = Main.scanner.nextInt();
+        int id = -1;
+        if(Main.scanner.hasNextInt()){
+            id = Main.scanner.nextInt();
+        }
         Main.scanner.nextLine();
         return id;
     }
     public void addProduct() {
         // Create a new product and add it to the inventory
         Product product = productManager.createProduct();
+        if(product == null){
+            return;
+        }
         ProductCard productCard = new ProductCard(product, 0);
         inventory.add(productCard);
     }
@@ -98,8 +104,15 @@ public class InventoryManager {
             // If the product id matches, update the quantity
             if (productCard.getProduct().getId() == id) {
                 System.out.println("Enter quantity (Old quantity: " + productCard.getQuantity() + "): ");
-                int quantity = Main.scanner.nextInt();
+                int quantity = -1;
+                if(Main.scanner.hasNextInt()){
+                    quantity = Main.scanner.nextInt();
+                }
                 Main.scanner.nextLine();
+                if(quantity < 0){
+                    System.out.println("Invalid quantity.");
+                    return;
+                }
                 productCard.setQuantity(quantity);
                 System.out.println("Quantity updated.");
                 return;
@@ -113,7 +126,10 @@ public class InventoryManager {
         System.out.println("3. Search by price range");
         System.out.println("4. Search by category");
         System.out.print("Your choice: ");
-        int choice = Main.scanner.nextInt();
+        int choice = -1;
+        if(Main.scanner.hasNextInt()){
+            choice = Main.scanner.nextInt();
+        }
         Main.scanner.nextLine();
         switch (choice){
             case 1:
@@ -156,11 +172,19 @@ public class InventoryManager {
         System.out.println("Product not found.");
     }
     public void searchProductByPriceRange() {
+        double minPrice = -1;
+        double maxPrice = -1;
+
         System.out.println("Enter min price: ");
-        double minPrice = Main.scanner.nextDouble();
+        if(Main.scanner.hasNextInt() || Main.scanner.hasNextDouble()){
+            minPrice = Main.scanner.nextDouble();
+        }
         Main.scanner.nextLine();
+
         System.out.println("Enter max price: ");
-        double maxPrice = Main.scanner.nextDouble();
+        if(Main.scanner.hasNextInt() || Main.scanner.hasNextDouble()){
+            maxPrice = Main.scanner.nextDouble();
+        }
         Main.scanner.nextLine();
         for (ProductCard productCard : inventory) {
             if (productCard.getProduct().getPrice() >= minPrice && productCard.getProduct().getPrice() <= maxPrice) {
@@ -197,7 +221,10 @@ public class InventoryManager {
                 System.out.println("10. Display coupons");
                 System.out.println("11. Back to main menu");
                 System.out.print("Enter your choice: ");
-                int choice = Main.scanner.nextInt();
+                int choice = -1;
+                if(Main.scanner.hasNextInt()){
+                    choice = Main.scanner.nextInt();
+                }
                 Main.scanner.nextLine();
                 switch (choice) {
                     case 1:

@@ -12,7 +12,7 @@ public class ProductManager {
         int choice = Main.scanner.nextInt();
         Main.scanner.nextLine();
         String name, description;
-        double price ;
+        double price = -1;
         System.out.print("Enter name: ");
         name = Main.scanner.nextLine();
         while(name.isEmpty()){
@@ -29,11 +29,13 @@ public class ProductManager {
         }
 
         System.out.print("Enter price: ");
-        price = Main.scanner.nextDouble();
-        while(price <= 0){
-            System.out.println("Error: Price must be greater than 0.");
-            System.out.print("Enter price: ");
+        if(Main.scanner.hasNextInt() || Main.scanner.hasNextDouble()){
             price = Main.scanner.nextDouble();
+        }
+        Main.scanner.nextLine();
+        if(price <= 0){
+            System.out.println("Invalid price.");
+            return null;
         }
 
         switch (choice) {

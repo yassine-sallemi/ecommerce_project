@@ -128,7 +128,10 @@ public class UserManager {
             System.out.println("3. Exit");
             System.out.print("Enter your choice: ");
             String login, password;
-            int choice = Main.scanner.nextInt();
+            int choice = -1;
+            if(Main.scanner.hasNextInt()){
+                choice = Main.scanner.nextInt();
+            }
             Main.scanner.nextLine();
             switch (choice) {
                 case 1:
@@ -175,7 +178,10 @@ public class UserManager {
             System.out.println("2. Inventory management");
             System.out.println("3. Logout");
             System.out.print("Enter your choice: ");
-            int choice = Main.scanner.nextInt();
+            int choice = -1;
+            if(Main.scanner.hasNextInt()){
+                choice = Main.scanner.nextInt();
+            }
             Main.scanner.nextLine();
             switch (choice) {
                 case 1:
@@ -204,7 +210,10 @@ public class UserManager {
                 System.out.println("5. Delete a user");
                 System.out.println("6. Back to main menu");
                 System.out.print("Enter your choice: ");
-                int choice = Main.scanner.nextInt();
+                int choice = -1;
+                if(Main.scanner.hasNextInt()){
+                    choice = Main.scanner.nextInt();
+                }
                 Main.scanner.nextLine();
                 switch (choice) {
                     case 1:
@@ -253,7 +262,10 @@ public class UserManager {
             System.out.println("4. Cancel an order");
             System.out.println("5. Logout");
             System.out.print("Enter your choice: ");
-            int choice = Main.scanner.nextInt();
+            int choice = -1;
+            if(Main.scanner.hasNextInt()){
+                choice = Main.scanner.nextInt();
+            }
             Main.scanner.nextLine();
             ShoppingCart shoppingCart = new ShoppingCart();
             int id;
@@ -267,13 +279,19 @@ public class UserManager {
                 case 3:
                     // Get order by id
                     System.out.println("Enter order id: ");
-                    id = Main.scanner.nextInt();
+                    id = -1;
+                    if(Main.scanner.hasNextInt()){
+                        id = Main.scanner.nextInt();
+                    }
                     Main.scanner.nextLine();
                     // Pay order based on payment method
                     System.out.println("1. Cash");
                     System.out.println("2. Credit card");
                     System.out.print("Enter your choice: ");
-                    int choice1 = Main.scanner.nextInt();
+                    int choice1 = -1;
+                    if(Main.scanner.hasNextInt()){
+                        choice1 = Main.scanner.nextInt();
+                    }
                     Main.scanner.nextLine();
                     switch (choice1) {
                         case 1:
@@ -283,12 +301,17 @@ public class UserManager {
                             currentUser.payOrder(id, new CreditCardPaymentStrategy());
                             break;
                         default:
-                            System.out.println("Invalid choice.");
+                            // If the user doesn't choose a valid payment method, cancel the payment
+                            System.out.println("Payment cancelled.");
+                            return;
                     }
                     break;
                 case 4:
                     System.out.println("Enter order id: ");
-                    id = Main.scanner.nextInt();
+                    id = -1;
+                    if(Main.scanner.hasNextInt()){
+                        id = Main.scanner.nextInt();
+                    }
                     Main.scanner.nextLine();
                     currentUser.cancelOrder(id, inventoryManager);
                     break;

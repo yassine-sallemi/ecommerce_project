@@ -114,10 +114,13 @@ public class ShoppingCart {
             System.out.println("7. Checkout");
             System.out.println("8. Back to main menu");
             System.out.print("Enter your choice: ");
-            int choice = Main.scanner.nextInt();
+            int choice = -1;
+            if(Main.scanner.hasNextInt()){
+                choice = Main.scanner.nextInt();
+            }
             Main.scanner.nextLine();
             ProductCard productCardFromInventory;
-            int id;
+            int id = -1;
             switch (choice) {
                 case 1:
                     // Display all products in the inventory.
@@ -125,15 +128,19 @@ public class ShoppingCart {
                     break;
                 case 2:
                     System.out.print("Enter product id: ");
-                    id = Main.scanner.nextInt();
+                    if(Main.scanner.hasNextInt()){
+                        id = Main.scanner.nextInt();
+                    }
                     Main.scanner.nextLine();
                     productCardFromInventory = inventoryManager.getProductCardById(id);
                     // Check if the product exists in the inventory and the user has paid for it and not rated it yet.
                     if (productCardFromInventory != null && inventoryManager.getCurrentUser().havePaidProduct(productCardFromInventory) && !inventoryManager.getCurrentUser().haveRatedProduct(productCardFromInventory)) {
-                        int rating;
+                        int rating = -1;
                         do {
                             System.out.print("Enter rating: ");
-                            rating = Main.scanner.nextInt();
+                            if(Main.scanner.hasNextInt()){
+                                rating = Main.scanner.nextInt();
+                            }
                             Main.scanner.nextLine();
                             if (rating < 1 || rating > 5) {
                                 System.out.println("Invalid rating (should be between 1 and 5)");
@@ -149,13 +156,22 @@ public class ShoppingCart {
                     break;
                 case 3:
                     System.out.print("Enter product id: ");
-                    id = Main.scanner.nextInt();
+                    if(Main.scanner.hasNextInt()){
+                        id = Main.scanner.nextInt();
+                    }
                     Main.scanner.nextLine();
                     productCardFromInventory = inventoryManager.getProductCardById(id);
                     if (productCardFromInventory != null) {
                         System.out.print("Enter quantity: ");
-                        int quantity = Main.scanner.nextInt();
+                        int quantity = -1;
+                        if(Main.scanner.hasNextInt()){
+                            quantity = Main.scanner.nextInt();
+                        }
                         Main.scanner.nextLine();
+                        if(quantity < 1){
+                            System.out.println("Invalid quantity.");
+                            break;
+                        }
                         addItemToCart(productCardFromInventory, quantity);
                     } else {
                         System.out.println("Product not found.");
@@ -163,13 +179,22 @@ public class ShoppingCart {
                     break;
                 case 4:
                     System.out.print("Enter product id: ");
-                    id = Main.scanner.nextInt();
+                    if(Main.scanner.hasNextInt()){
+                        id = Main.scanner.nextInt();
+                    }
                     Main.scanner.nextLine();
                     productCardFromInventory = inventoryManager.getProductCardById(id);
                     if (productCardFromInventory != null) {
                         System.out.print("Enter quantity: ");
-                        int quantity = Main.scanner.nextInt();
+                        int quantity = -1;
+                        if(Main.scanner.hasNextInt()){
+                            quantity = Main.scanner.nextInt();
+                        }
                         Main.scanner.nextLine();
+                        if(quantity < 1){
+                            System.out.println("Invalid quantity.");
+                            break;
+                        }
                         updateItemQuantity(productCardFromInventory, quantity);
                     } else {
                         System.out.println("Product not found.");
@@ -177,7 +202,9 @@ public class ShoppingCart {
                     break;
                 case 5:
                     System.out.print("Enter product id: ");
-                    id = Main.scanner.nextInt();
+                    if(Main.scanner.hasNextInt()){
+                        id = Main.scanner.nextInt();
+                    }
                     Main.scanner.nextLine();
                     productCardFromInventory = inventoryManager.getProductCardById(id);
                     if (productCardFromInventory != null) {

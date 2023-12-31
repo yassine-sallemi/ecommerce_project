@@ -40,18 +40,18 @@ public abstract class Product {
     public void update(){
         System.out.print("Enter new name: ");
         setName(Main.scanner.nextLine());
-        while(true){
-            System.out.print("Enter new price: ");
-            try {
-                setPrice(Double.parseDouble(Main.scanner.nextLine()));
-                if(price > 0){
-                    break;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Error: Please enter a valid price.");
-            }
-        }
 
+        double price = -1;
+        System.out.print("Enter new price: ");
+        if(Main.scanner.hasNextInt() || Main.scanner.hasNextDouble()){
+            price = Main.scanner.nextDouble();
+        }
+        Main.scanner.nextLine();
+        if(price <= 0){
+            System.out.println("Invalid price.");
+            return;
+        }
+        setPrice(price);
         System.out.print("Enter new description: ");
         setDescription(Main.scanner.nextLine());
     }

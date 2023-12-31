@@ -4,11 +4,14 @@ public class CouponManager {
     private final ArrayList<Coupon> coupons = new ArrayList<>();
 
     public void createCoupon(User admin) {
-        double discount;
+        double discount = 0;
         String codeText;
         System.out.println("Enter discount: ");
-        discount = Main.scanner.nextDouble();
+        if(Main.scanner.hasNextInt() || Main.scanner.hasNextDouble()){
+            discount = Main.scanner.nextDouble();
+        }
         Main.scanner.nextLine();
+        
         // Check if discount is between 5 and 70
         if (discount < 5 || discount > 70) {
             System.out.println("Discount must be between 5 and 70.");
